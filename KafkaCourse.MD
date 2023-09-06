@@ -35,9 +35,9 @@
 
 - Producers: write data to the topics. producers can receive acknowledgment of data writes.
 * Three types of acknowledgment exists in Kafka:
-    1) acks = 0 : producers won't wait for ack (possible data loss)
-    2) acks = 1 : producers will wait for leader ack (limited data loss)
-    3) acks = all : producers will wait for leader and all replicas acks (no data loss)
+  1) acks = 0 : producers won't wait for ack (possible data loss)
+  2) acks = 1 : producers will wait for leader ack (limited data loss)
+  3) acks = all : producers will wait for leader and all replicas acks (no data loss)
 * producers can choose to send a key with message (string,number,etc...). if key=null data is sent round robin.
   if a key is sent, then all messages for that key will always go to the same partition.
   it called Key Hashing. a key is basically sent if you need message ordering for a speicif field.
@@ -59,23 +59,23 @@
 * In Apache Kafka it is acceptable to have multiple consumer groups on the same topic.
 
 - Delivery semantics for consumers: Consumers choose when to commit offsets.
-    * There are 3 delivery semantics:
-    1) At most once: offsets are commited as soon as the message is received.
-       If the process goes wrong, the message will be lost (It won't be read again).
-    2) At least once (usually prefered): offsets are commited after the message is processed.
-       If the process goes wrong, the message will be read again. This can result in duplicate processing of messages.
-       Make sure your processing is idempotent.(i.e. processing again the messages won't impact your systems).
-    3) Exactly once: Can be achieved for Kafka => Kafka workflows using Kafka Streams API.
-       For Kafka => External Systems workflows, use an idempotent consumer.
+  * There are 3 delivery semantics:
+  1) At most once: offsets are commited as soon as the message is received.
+     If the process goes wrong, the message will be lost (It won't be read again).
+  2) At least once (usually prefered): offsets are commited after the message is processed.
+     If the process goes wrong, the message will be read again. This can result in duplicate processing of messages.
+     Make sure your processing is idempotent.(i.e. processing again the messages won't impact your systems).
+  3) Exactly once: Can be achieved for Kafka => Kafka workflows using Kafka Streams API.
+     For Kafka => External Systems workflows, use an idempotent consumer.
 
 - Kafka Broker Discovery: You only need to connect to one broker and you will be connected to the entire cluster.
   Each broker knows about all brokers,topics and partitions(metadata).
 
 ### Zookeeper: Manages brokers, helps in performing leader election for partitions,
-  sends notifications to Kafka in case of changes(e.g. new topic, broker dies, broker comes up, delete topics, etc...)
-  Zookeeper by design operates with an odd number of servers (1,3,5,7)
-  Zookeeper has a leader (handle writes) the rest of the servers are followers (handle reads)
-  Zookeeper does NOT store consumer offsets with Kafka > v0.10.
+sends notifications to Kafka in case of changes(e.g. new topic, broker dies, broker comes up, delete topics, etc...)
+Zookeeper by design operates with an odd number of servers (1,3,5,7)
+Zookeeper has a leader (handle writes) the rest of the servers are followers (handle reads)
+Zookeeper does NOT store consumer offsets with Kafka > v0.10.
 * Zookeeper is also less secure tha Kafka, and therefore Zookeeper ports should only be opened to allow traffic from Kafka brokers, and not Kafka clients.
 * Kafka 2.x can't work without Zookeeper.
 * Kafka 3.x can work without Zookeeper(KIP-500) - using Kafka Raft instead(KRaft).
@@ -83,31 +83,34 @@
 
 * Kafka Kraft: In 2020, the Apache Kafka project started to work to remove the Zookeeper dependency from it (KIP-500).
   Zookeeper shows scaling issues when Kafka clusters have 100.000 partitions. By removing Zookeeper, Apache Kafka can:
-    - Scaling to milions of partitions, and become easier to maintain and set-up.
-    - Improve stability, makes it easier to monitor, support and administer.
-    - Single security model for the whole system.
-    - Single process to start with Kafka
-    - Faster controller shutdown and recovery time
+  - Scaling to milions of partitions, and become easier to maintain and set-up.
+  - Improve stability, makes it easier to monitor, support and administer.
+  - Single security model for the whole system.
+  - Single process to start with Kafka
+  - Faster controller shutdown and recovery time
 
 ### Kafka Guarantees:
 * Messages are appended to a topic-partition in the order they sent
 * Consumers read messages in the order stored in a topic-partition
 * WIth a replication factor of N, producers and consumers can tolerate up to N-1 brokers being down.
 * This is why a replication factor of 3 is a good ideal:
-    1) Allows for one broker to be taken down for maintenance
-    2) Allows for another broker to be taken down unexpectedly
+  1) Allows for one broker to be taken down for maintenance
+  2) Allows for another broker to be taken down unexpectedly
 * Alson long as number of partitions remains constant for a topic (no new partitions), the same key will always go to the same partition
 
 ### Consumer Rebalancing:
 1) Eager Rebalance: Stop the world!, then reassign partitions to consumers.
 2) Cooperative Rebalance: Reassign a small subset of the partitions from one consumer to another. Other consumers that don't have reassigned partitions can still process uninterrupted.
 * Cooperative Rebalance: Has partition.assignment.strategy:
-    1) RangeAssignor: assign partition on a per-topic-basis (can lead to imbalanace)
-    2) RoundRobin: assign partition across all topics in round-robin fashion, optimal balance
-    3) StickyAssignor: Balanced like RoundRobin, and then minimizes partition movements when consumer join/leave the group in ordeer to minimize movements
-    4) CooperativeStickyAssignor: Relabance strategy is identical to StickyAssignor but supports cooperative relabances and therefore consumers can keep on consuming from the topic
+  1) RangeAssignor: assign partition on a per-topic-basis (can lead to imbalanace)
+  2) RoundRobin: assign partition across all topics in round-robin fashion, optimal balance
+  3) StickyAssignor: Balanced like RoundRobin, and then minimizes partition movements when consumer join/leave the group in ordeer to minimize movements
+  4) CooperativeStickyAssignor: Relabance strategy is identical to StickyAssignor but supports cooperative relabances and therefore consumers can keep on consuming from the topic
 * Default assignor are [RangeAssignor, CooperativeStickyAssignor]
 * Kafka Connect already implemented and enabled by default
 * Kafka Streams turend on by default using StreamPartitionAssignor
 * If a consumer leaves a group and joins back, it will have a new "member ID" and new partition assigned. use group.instance.id to sepcifiy a consumer static member.
   Remember session.timeout.ms should not reach else relabance happened.(specific partition to a specific consumer)
+
+* Offsets are commited when you call .poll() and auto.commit.interval.ms has elapsed.
+* #### Make sure messages are all successfully processed before you call poll() again. If you don't, you will not be in at-least-once reading scenario. In some rare cases, you must disable enable.auto.commit, and most likely most processing to a separate thread and then from time-to-time call .commitSync() or .commitAsync() with the correct offsets manually(advanced)
