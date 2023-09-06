@@ -60,7 +60,7 @@ public class ConsumerDemoWithShutdown {
                 }
             }
         } catch (WakeupException e) {
-            logger.info("Wake up exception !");
+            logger.error("Wake up exception !");
         }
         catch (Exception e){
             logger.error("Unexpected exception");
