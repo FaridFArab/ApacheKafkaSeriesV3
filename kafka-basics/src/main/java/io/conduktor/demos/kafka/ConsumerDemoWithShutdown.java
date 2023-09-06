@@ -1,9 +1,6 @@
 package io.conduktor.demos.kafka;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
@@ -25,6 +22,10 @@ public class ConsumerDemoWithShutdown {
         properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,StringDeserializer.class.getName());
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG,"mygroupid");
         properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,"earliest");
+        // Change partition assignment strategy when a consumer joins/leaves consumer group
+        properties.setProperty(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName());
+        // Static assignment ID
+        // properties.setProperty(ConsumerConfig.GROUP_INSTANCE_ID_CONFIG,"");
 
         KafkaConsumer<String, String> kafkaConsumer = new KafkaConsumer<>(properties);
 
