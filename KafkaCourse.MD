@@ -43,6 +43,7 @@
   it called Key Hashing. a key is basically sent if you need message ordering for a speicif field.
 * min.insync.replicas = 1: only the broker leader needs to successfully ack
 * min.insync.replicas = 2: at least the broker leader and one replica need to ack
+* #### NOT_ENOUGH_REPLICAS due to min.insync.replicas setting.
 
 - Consumers: read data from a topic (identified by name) by pull model.
 * consumers know which broker to read from
@@ -117,3 +118,16 @@ Zookeeper does NOT store consumer offsets with Kafka > v0.10.
 * Offsets are commited when you call .poll() and auto.commit.interval.ms has elapsed.
 * ### Make sure messages are all successfully processed before you call poll() again. If you don't, you will not be in at-least-once reading scenario.
 * ### In some rare cases, you must disable enable.auto.commit, and most likely most processing to a separate thread and then from time-to-time call .commitSync() or .commitAsync() with the correct offsets manually(advanced)
+
+### Producer Retries:
+- retry.backoff.ms setting is by default 100 ms.
+  -- max.in.flight.requests.per.connection = how many produce requests can be made in parallel (default 5)
+* ### For ensure ordering set max.in.flight.requests.per.connection to 1.
+
+### Idempotent Producer:
+* Won't introduce duplicates on network error. Come with:
+  1) retries = Integer.MAX_VALUE (2^31 - 1 = 2147483647, retries until delivery.timeout.ms is reached)
+  2) max.in.flight.requests = 5 (high performance and keep ordering)
+  3) acks = all
+  4) delivery.timeout.ms = 120000 (fail after 2 minutes retrying)
+* ### Since Kafka 3.0 the producer is "safe" by default: 	1) acks = all(-1) 	2) enable.idempotence = true , but in Kafka 2.8 and lower: 1) acks = 1	2) enable.idempotence = false
