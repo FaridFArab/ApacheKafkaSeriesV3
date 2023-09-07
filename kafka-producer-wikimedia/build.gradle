@@ -20,10 +20,11 @@ dependencies {
     implementation 'org.slf4j:slf4j-simple:2.0.9'
 
     // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
-    implementation 'com.squareup.okhttp3:okhttp:4.11.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+
 
     // https://mvnrepository.com/artifact/com.launchdarkly/okhttp-eventsource
-    implementation 'com.launchdarkly:okhttp-eventsource:4.1.1'
+    implementation 'com.launchdarkly:okhttp-eventsource:2.5.0'
 
 
 }
