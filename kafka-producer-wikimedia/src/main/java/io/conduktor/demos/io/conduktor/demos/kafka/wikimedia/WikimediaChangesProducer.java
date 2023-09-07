@@ -21,10 +21,10 @@ public class WikimediaChangesProducer {
         properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBootstrapServers());
         properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, kafkaConfig.getKeySerializer());
         properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, kafkaConfig.getValueSerializer());
+        String topic = "wikimedia.recentchange";
 
         KafkaProducer<String, String> producer = new KafkaProducer<>(properties);
 
-        String topic = "wikimedia.recentchange";
         EventHandler eventHandler = new WikimediaChangeHandler(producer, topic);
         String url = "https://stream.wikimedia.org/v2/stream/recentchange";
 
