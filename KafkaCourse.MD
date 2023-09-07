@@ -35,12 +35,14 @@
 
 - Producers: write data to the topics. producers can receive acknowledgment of data writes.
 * Three types of acknowledgment exists in Kafka:
-  1) acks = 0 : producers won't wait for ack (possible data loss)
-  2) acks = 1 : producers will wait for leader ack (limited data loss)
-  3) acks = all : producers will wait for leader and all replicas acks (no data loss)
+  1) acks = 0 : producers won't wait for ack from leader broker (possible data loss but highest throughput)
+  2) acks = 1 : producers will wait for only leader broker ack  (limited data loss)
+  3) acks = all : producers will wait for leader and all in-sync replicas (ISR) acks (no data loss because first all ISRs get data, then leader)
 * producers can choose to send a key with message (string,number,etc...). if key=null data is sent round robin.
   if a key is sent, then all messages for that key will always go to the same partition.
   it called Key Hashing. a key is basically sent if you need message ordering for a speicif field.
+* min.insync.replicas = 1: only the broker leader needs to successfully ack
+* min.insync.replicas = 2: at least the broker leader and one replica need to ack
 
 - Consumers: read data from a topic (identified by name) by pull model.
 * consumers know which broker to read from
@@ -113,4 +115,5 @@ Zookeeper does NOT store consumer offsets with Kafka > v0.10.
   Remember session.timeout.ms should not reach else relabance happened.(specific partition to a specific consumer)
 
 * Offsets are commited when you call .poll() and auto.commit.interval.ms has elapsed.
-* #### Make sure messages are all successfully processed before you call poll() again. If you don't, you will not be in at-least-once reading scenario. In some rare cases, you must disable enable.auto.commit, and most likely most processing to a separate thread and then from time-to-time call .commitSync() or .commitAsync() with the correct offsets manually(advanced)
+* ### Make sure messages are all successfully processed before you call poll() again. If you don't, you will not be in at-least-once reading scenario.
+* ### In some rare cases, you must disable enable.auto.commit, and most likely most processing to a separate thread and then from time-to-time call .commitSync() or .commitAsync() with the correct offsets manually(advanced)
