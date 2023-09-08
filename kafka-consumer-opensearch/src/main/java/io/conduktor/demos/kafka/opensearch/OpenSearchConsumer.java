@@ -89,10 +89,16 @@ public class OpenSearchConsumer {
 
                 for(ConsumerRecord<String, String> record: records){
                     // send record into OpenSearch
-                    IndexRequest indexRequest = new IndexRequest("wikimedia").source(record.value(), XContentType.JSON);
-                    IndexResponse indexResponse =  openSearchClient.index(indexRequest, RequestOptions.DEFAULT);
+                    try {
+                        IndexRequest indexRequest = new IndexRequest("wikimedia").source(record.value(), XContentType.JSON);
+                        IndexResponse indexResponse =  openSearchClient.index(indexRequest, RequestOptions.DEFAULT);
 
-                    logger.info(indexResponse.getId());
+                        logger.info(indexResponse.getId());
+                    }
+                    catch (Exception e){
+
+                    }
+
                 }
             }
 
