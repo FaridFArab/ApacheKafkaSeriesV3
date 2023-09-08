@@ -57,8 +57,8 @@
 - Consumer offsets: Kafka stores the offsets at which a consumer group has been reading.
 * The offsets committed live in a Kafka topic named __consumer_offsets.
 * When a consumer in a group has processed data received from Kafka, it should be periodically
-  commiting the offsets.(the Kafka broker will write to __consumer_offsets, not the group itself)
-  If a consumer dies, it will be able to read back from where it left off thanks to the commited consumer offsets.
+  committing the offsets.(the Kafka broker will write to __consumer_offsets, not the group itself)
+  If a consumer dies, it will be able to read back from where it left off thanks to the committed consumer offsets.
 * In Apache Kafka it is acceptable to have multiple consumer groups on the same topic.
 
 - Delivery semantics for consumers: Consumers choose when to commit offsets.
@@ -111,11 +111,11 @@ Zookeeper does NOT store consumer offsets with Kafka > v0.10.
   4) CooperativeStickyAssignor: Rebalance strategy is identical to StickyAssignor but supports cooperative rebalance and therefore consumers can keep on consuming from the topic
 * Default assignor are [RangeAssignor, CooperativeStickyAssignor]
 * Kafka Connect already implemented and enabled by default
-* Kafka Streams turend on by default using StreamPartitionAssignor
+* Kafka Streams turned on by default using StreamPartitionAssignor
 * If a consumer leaves a group and joins back, it will have a new "member ID" and new partition assigned. use group.instance.id to specify a consumer static member.
   Remember session.timeout.ms should not reach else rebalance happened.(specific partition to a specific consumer)
 
-* Offsets are commited when you call .poll() and auto.commit.interval.ms has elapsed.
+* Offsets are committed when you call .poll() and auto.commit.interval.ms has elapsed.
 * ### Make sure messages are all successfully processed before you call poll() again. If you don't, you will not be in at-least-once reading scenario.
 * ### In some rare cases, you must disable enable.auto.commit, and most likely most processing to a separate thread and then from time-to-time call .commitSync() or .commitAsync() with the correct offsets manually(advanced)
 
@@ -134,7 +134,7 @@ Zookeeper does NOT store consumer offsets with Kafka > v0.10.
 
 ### Message Compression at the Producer level: enabled at the Producer level. compression.type can be none(default), gzip, lz4, snappy and zstd(old version). It can speed up batch produce.
 * ### Compression can set at the broker level or topic-level(compression.type = producer)(compression.type=lz4)
-* #### If your compression.type is equals to topic-level there is not another compression but if they are different, batches are decompressed by the broker and then recompressed.
+* #### If your compression. type is equals to topic-level there is not another compression but if they are different, batches are decompressed by the broker and then recompressed.
 * ### Warning: If you enable broker-side compression, it will consume extra CPU cycles.
 
 ### Producer Default Partitioner:
