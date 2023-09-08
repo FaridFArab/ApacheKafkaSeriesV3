@@ -151,6 +151,23 @@ Zookeeper does NOT store consumer offsets with Kafka > v0.10.
 
 ### Consumer Offset Commit Strategies:
 #### 1) enable.auto.commit: true and synchronous processing of batches(easy)
-#### 2) enable.auto.commit: false and manual commit of offsets(use commitSync() and commitAsync() with the correct offsets manually(advanced)).  For this you need to launch manually using .seek() API and model, store your offset in a database table for example and handle the cases where rebalances happen(ConsumerRebalancerListener interface) 
+#### 2) enable.auto.commit: false and manual commit of offsets(use commitSync() and commitAsync() with the correct offsets manually(advanced)).  For this you need to launch manually using .seek() API and model, store your offset in a database table for example and handle the cases where rebalances happen(ConsumerRebalancerListener interface)
 
 * ## Make sure messages are all successfully processed before you call poll() again.
+
+### Consumer Offset Reset Behavior:
+* #### auto.offset.reset = 
+  * latest (will read from the end of log)
+  * earliest (will read from the start of the log)
+  * none (will throw an exception if no offset is found)
+* ### If a consumer hasn't read new data in retention time(7 days) offset can be lost(offset.retention.minutes)
+
+### Consumer Groups
+* #### Consumers in a group talk to a consumer groups coordinator. To detect consumers that are "down", there is a "heartbeat" mechanism and a "poll" mechanism.
+* #### heartbeat.interval.ms = 3 seconds, usually set to  1/3rd of session.timeout.ms
+* #### max.poll.interval.ms = 5 minutes, Maximum amount of time between two .poll() calls before declaring the consumer dead.
+* #### max.poll.records = 500, Controls how many records to receive per poll request. Increase if your messages are very small and have a lot of available RAM. Lower it if it takes you too much time to process records.
+* #### fetch.min.bytes = 1, Controls how much data you want to pull at least on each request. Help improving throughput and decreasing request number.Cost latency.
+* #### fetch.max.wait.ms = 500, The Maximum amount of time the Kafka broker will block before answering the fetch request if there isn't sufficient data to immediately satisfy the requirements given by fetch.min.bytes you have up to 500 ms latency before the fetch returns data to the consumer.
+* #### max.partition.fetch.bytes = 1MB, the maximum amount of data per partition the server will return. If you read from 100 partitions, you'll need a lot of memory(RAM).
+* #### max.fetch.bytes = 55MB, Maximum data returned for each request. If you have available memory. try increasing it to allow the consumer to read more data in each request.
