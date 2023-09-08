@@ -12,6 +12,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.opensearch.action.bulk.BulkRequest;
+import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.index.IndexRequest;
 import org.opensearch.action.index.IndexResponse;
 import org.opensearch.client.RequestOptions;
@@ -60,6 +62,8 @@ public class OpenSearchConsumer {
 
         return restHighLevelClient;
     }
+
+    @SuppressWarnings("InfiniteLoopStatement")
     public static void main(String[] args) throws IOException
     {
         // create an OpenSearch Client
@@ -88,6 +92,8 @@ public class OpenSearchConsumer {
                 ConsumerRecords<String, String> records = kafkaConsumer.poll(Duration.ofMillis(3000));
                 logger.info("Received " + records.count() + " record(s)");
 
+                BulkRequest bulkRequest = new BulkRequest();
+
                 for(ConsumerRecord<String, String> record: records){
                     // send record into OpenSearch
                     try {
@@ -105,11 +111,24 @@ public class OpenSearchConsumer {
                         IndexResponse indexResponse =  openSearchClient.index(indexRequest, RequestOptions.DEFAULT);
 
                         logger.info(indexResponse.getId());
+
+                        bulkRequest.add(indexRequest);
                     }
                     catch (Exception e){
                         logger.error(e.toString());
                     }
                 }
+                if (bulkRequest.numberOfActions() > 0){
+                    BulkResponse bulkResponse = openSearchClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+                    logger.info("Inserted " + bulkResponse.getItems().length + " record(s)");
+                    try {
+                        Thread.sleep(1000);
+                    }
+                    catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }
+
                 kafkaConsumer.commitAsync();
                 logger.info("Offsets have been committed!");
             }
