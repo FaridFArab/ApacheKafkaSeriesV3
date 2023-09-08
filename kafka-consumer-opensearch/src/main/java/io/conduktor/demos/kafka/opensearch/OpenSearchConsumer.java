@@ -1,5 +1,6 @@
 package io.conduktor.demos.kafka.opensearch;
 
+import com.google.gson.JsonParser;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -90,20 +91,36 @@ public class OpenSearchConsumer {
                 for(ConsumerRecord<String, String> record: records){
                     // send record into OpenSearch
                     try {
-                        IndexRequest indexRequest = new IndexRequest("wikimedia").source(record.value(), XContentType.JSON);
+                        // Handle duplicate record in ELK
+                        // strategy 1: define an ID using Kafka Record coordinates
+
+                        String id = record.topic() + "_" + record.partition() + "_" + record.offset();
+
+                        // strategy 2: use id in meta key for each record(a unique guid)
+                        String id2 = extractId(record.value());
+
+                        IndexRequest indexRequest = new IndexRequest("wikimedia")
+                                .source(record.value(), XContentType.JSON).id(id);
+//                                .source(record.value(), XContentType.JSON).id(id2);
                         IndexResponse indexResponse =  openSearchClient.index(indexRequest, RequestOptions.DEFAULT);
 
                         logger.info(indexResponse.getId());
                     }
                     catch (Exception e){
-
+                        logger.error(e.toString());
                     }
-
                 }
+                kafkaConsumer.commitAsync();
+                logger.info("Offsets have been committed!");
             }
 
 //        openSearchClient.close();
         }
+    }
+
+    private static String extractId(String json) {
+        // gson library
+        return JsonParser.parseString(json).getAsJsonObject().get("meta").getAsJsonObject().get("id").getAsString();
     }
 
     private static KafkaConsumer<String, String> createKafkaConsumer()

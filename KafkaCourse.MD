@@ -137,10 +137,20 @@ Zookeeper does NOT store consumer offsets with Kafka > v0.10.
 * #### If your compression.type is equals to topic-level there is not another compression but if they are different, batches are decompressed by the broker and then recompressed.
 * ### Warning: If you enable broker-side compression, it will consume extra CPU cycles.
 
-### Producer Default Partitioner: 
+### Producer Default Partitioner:
 * When key is null two approach exist: 1) Round Robin: for Kafka 2.3 and below  2) Sticky Partitioner: for Kafka 2.4 and above.
 * Sticky Partitioner improves the performance of the producer especially when high throughput when the key is null
 
 * If the producer produces faster than the broker can take, the records will be buffered in memory. buffer.memory = 32MB
 * If the buffer is full, then the .send() method will start to block. max.block.ms=60000 the time the .send() will block until throwing an exception.
-* 
+
+### Delivery Semantics
+#### 1) At Most Once : offsets are committed as soon as the message batch is received. If the processing goes wrong, the message will be lost(Never Twice but sometimes zero).
+#### 2) At Least Once: committed after the message is processed. This can result in duplicate processing of messages. Make sure your processing is idempotent.
+#### 3) Exactly Once: Can be achieved for Kafka -> Kafka workflows using the Transactional API(easy with Kafka Stream API). For Kafka => Sink workflows, use an idempotent consumer.
+
+### Consumer Offset Commit Strategies:
+#### 1) enable.auto.commit: true and synchronous processing of batches(easy)
+#### 2) enable.auto.commit: false and manual commit of offsets(use commitSync() and commitAsync() with the correct offsets manually(advanced)).  For this you need to launch manually using .seek() API and model, store your offset in a database table for example and handle the cases where rebalances happen(ConsumerRebalancerListener interface) 
+
+* ## Make sure messages are all successfully processed before you call poll() again.
