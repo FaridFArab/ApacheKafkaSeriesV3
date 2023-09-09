@@ -187,4 +187,24 @@ Zookeeper does NOT store consumer offsets with Kafka > v0.10.
 * 
 ## Kafka Streams
 * ### Easy data processing and transformation library, process on a stream Kafka data like count, analyze and numbers of something in a Kafka topic, highly scalable, elastic and fault tolerant, Exactly-Once capabilities, One record at a time processing(no batching)
+
+## Schema Registry
+* ### Data verification for bad data, field renamed, change data format for not Consumer break. Data need to be self describable. the Kafka Brokers verify the messages when they received. It needs no CPU usage and zero-copy. The Schema Registry must be a separate components and Consumers and Producers need to be able to talk to it. Apache Avro as the data format(Protobuf, JSON Schema also supported). Producers send schema and Consumers retrieve schema. It must be high available and set up well.
+* ### The purpose of Schema Registry: 1) Store and retrieve schemas for Producers/Consumers 2) Enforce Backward/Forward/Full compatibility on topics 3) Decrease the size of the payload of data sent to Kafka
+
+### Partition Count & Replication Factor
+* ### Small cluster(< 6 brokers): 3x # of brokers, Big cluster(> 12 brokers): 2x # of brokers
+* ## Test! Every Kafka cluster will have different performance.
+* ### Replication Factor should be at least 2, usually 3, maximum 4. Higher replication factor (N) --> Better durability of you system (N-1  brokers can fail) but more replication factor cause higher latency if acks=all.
+* ## Set it to 3 to get started(you must have at least 3 brokers for that)
+* ## Recommended  maximum of 4000 partitions per broker.
+* ## Follow the Netflix model and create more Kafka clusters.
+
+### Topic Naming Convention:
+* ### |message type|dataset name|data name|data format|
+* ### Message type: logging, queuing, tracking, etl/db, streaming, push, user
+* ### Dataset name: analogous to a database name in traditional RDBMS systems. used as a category to group topics together.
+* ### Data name: analogous to a table name in traditional RDBMS systems.
+* ### Data format: .avro, .json, .text, .csv, .log
+* ### User snake_case.
 * 
