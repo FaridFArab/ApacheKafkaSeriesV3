@@ -171,3 +171,13 @@ Zookeeper does NOT store consumer offsets with Kafka > v0.10.
 * #### fetch.max.wait.ms = 500, The Maximum amount of time the Kafka broker will block before answering the fetch request if there isn't sufficient data to immediately satisfy the requirements given by fetch.min.bytes you have up to 500 ms latency before the fetch returns data to the consumer.
 * #### max.partition.fetch.bytes = 1MB, the maximum amount of data per partition the server will return. If you read from 100 partitions, you'll need a lot of memory(RAM).
 * #### max.fetch.bytes = 55MB, Maximum data returned for each request. If you have available memory. try increasing it to allow the consumer to read more data in each request.
+
+### Kafka Consumer Replica Fetching:
+* #### It is possible to configure consumers to read from the closest replica(for latency and network cost). it called Rack Awareness. 
+* #### For Broker setting: rack.id config must be set to the data center ID. replica.selector.class must be set(org.apache.kafka.common.replica.RackAwareReplicaSelector).
+* #### For Consumer client setting: Set client.rack to the data center ID the consumer is launched on.
+
+### Kafka Ecosystem: 
+* #### Consumer and Producer considered low-level but Kafka and Ecosystem introduced over time some new API that are higher level that solves specific problems like Kafka Stream, Kafka Connect and Schema Registry.
+
+### Kafka Connect: Tool used for receive and send data with databases and sink data. A connect cluster made from workers. Get data from source and sink to outsource.
