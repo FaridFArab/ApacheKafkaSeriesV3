@@ -180,4 +180,11 @@ Zookeeper does NOT store consumer offsets with Kafka > v0.10.
 ### Kafka Ecosystem: 
 * #### Consumer and Producer considered low-level but Kafka and Ecosystem introduced over time some new API that are higher level that solves specific problems like Kafka Stream, Kafka Connect and Schema Registry.
 
-### Kafka Connect: Tool used for receive and send data with databases and sink data. A connect cluster made from workers. Get data from source and sink to outsource.
+## Kafka Connect
+* ### A tool used for receive and send data with databases and sink data. A connect cluster made from workers. Get data from Common data source and sink to Common data stores.
+* ### https://www.confluent.io/hub/confluentinc/kafka-connect-elasticsearch
+* ### https://github.com/conduktor/kafka-connect-wikimedia/releases
+* 
+## Kafka Streams
+* ### Easy data processing and transformation library, process on a stream Kafka data like count, analyze and numbers of something in a Kafka topic, highly scalable, elastic and fault tolerant, Exactly-Once capabilities, One record at a time processing(no batching)
+* 
