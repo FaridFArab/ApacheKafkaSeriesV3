@@ -218,4 +218,8 @@ Zookeeper does NOT store consumer offsets with Kafka > v0.10.
 * #### 2) Request Handler: Utilization of threads for IO, network, etc... overall utilization of an Apache Kafka broker.
 * #### 3) Request Timing: How long it takes to reply requests. Lower is better, as latency will be improved.
 * ### Kafka Operations team must be able to perform the following tasks: 1) Rolling Restart of Brokers  2) Updating Configurations   3) Rebalancing Partitions  4) Increasing replication factor  5) Adding a broker  6) Replacing a Broker  7) Removing a Broker  8) Upgrading a Kafka Cluster with zero downtime
-* 
+
+### Apache Kafka Security:
+* ### Authentication: SSL: clients must use SSL certificates, SASL/PLAINTEXT: weak but easy setup and need username and password; SASL/SCRAM: username and password with a challenge and more secure; SASL/GSSAPI(Kerberos): such as Microsoft Active Directory, strong but hard to setup; SASL/OAUTHBEARER: leverage oauth token for authentication.
+* ### Authorisation: use ACL(Access Control List)
+* ### Encryption: ensures that the data exchanged between clients and brokers is sector to routers on the way.
