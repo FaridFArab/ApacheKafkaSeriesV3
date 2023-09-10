@@ -184,7 +184,7 @@ Zookeeper does NOT store consumer offsets with Kafka > v0.10.
 * ### A tool used for receive and send data with databases and sink data. A connect cluster made from workers. Get data from Common data source and sink to Common data stores.
 * ### https://www.confluent.io/hub/confluentinc/kafka-connect-elasticsearch
 * ### https://github.com/conduktor/kafka-connect-wikimedia/releases
-* 
+
 ## Kafka Streams
 * ### Easy data processing and transformation library, process on a stream Kafka data like count, analyze and numbers of something in a Kafka topic, highly scalable, elastic and fault tolerant, Exactly-Once capabilities, One record at a time processing(no batching)
 
@@ -207,4 +207,15 @@ Zookeeper does NOT store consumer offsets with Kafka > v0.10.
 * ### Data name: analogous to a table name in traditional RDBMS systems.
 * ### Data format: .avro, .json, .text, .csv, .log
 * ### User snake_case.
+
+### Kafka for Admin:
+* ### It's not easy to setup a cluster because you have to isolate each Zookeeper and Broker on separate servers, monitoring need to be implemented, operations must be mastered, need ad excellent Kafka Admin.
+
+### Kafka Monitoring and Operations:
+* ### Expose metrics through JMX, common places to host Kafka metrics are ELK, Datadog or NewRelic.
+* ### Some Metrics: 
+* #### 1) Under Replicated Partitions: Number of partitions are have problems with the ISR. May indicate a high load on system.
+* #### 2) Request Handler: Utilization of threads for IO, network, etc... overall utilization of an Apache Kafka broker.
+* #### 3) Request Timing: How long it takes to reply requests. Lower is better, as latency will be improved.
+* ### Kafka Operations team must be able to perform the following tasks: 1) Rolling Restart of Brokers  2) Updating Configurations   3) Rebalancing Partitions  4) Increasing replication factor  5) Adding a broker  6) Replacing a Broker  7) Removing a Broker  8) Upgrading a Kafka Cluster with zero downtime
 * 
