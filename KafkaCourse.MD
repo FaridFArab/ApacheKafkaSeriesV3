@@ -230,3 +230,57 @@ Zookeeper does NOT store consumer offsets with Kafka > v0.10.
 * #### Replication doesn't preserve offsets, just data! Data an offset in one cluster is not the same as the data at same offset in another cluster.
 * ##### Active -> Active: 2 way replication to write on both clusters. To serv users from a nearby data center has performance benefits, Redundancy and resilience but architecture is challenging in avoiding conflicts.
 * ##### Active -> Passive: One way replication, simple to setup and no need to worry about access data and conflicts. Good for cloud migrations as well but Waste of good cluster and not possible to perform cluster fail over in Kafka without either losing data or having duplicates events.
+* 
+* #### Kafka Client use ADV_HOST to connect to Kafka cluster. It must be available for client and can be same as public IP but if public IP changed the server was lost. So use advertised.listeners config.
+* #### For add topic config use kafka-configs module. Use this command to show all configs:
+
+* Show all configuration for a topic
+```bash
+kafka-topics --bootstrap-server localhost:9092 --topic mytopic --describe
+``` 
+
+* Show documentation of all enable configuration
+```bash
+kafka-configs
+``` 
+* Show all enable configuration for a specific topic havij-topic
+```bash
+kafka-configs --bootstrap-server localhost:9092 --entity-type topics --entity-name havij-topic --describe
+``` 
+
+* Alter configuration for a specific topic mytopic change min.insync.replicas = 2
+```bash
+kafka-configs --bootstrap-server localhost:9092 --entity-type topics --entity-name mytopic --alter --add-config min.insync.replicas=2
+``` 
+
+* Delete configuration for a specific topic mytopic change min.insync.replicas
+```bash
+kafka-configs --bootstrap-server localhost:9092 --entity-type topics --entity-name mytopic --alter --delete-config min.insync.replicas
+``` 
+
+### Partitions and Segments
+* ####  Topics made of partitions and partitions made of segments(files).
+* #### Only one segment is active(offsets is bounded in segments for example 0-957 on segment 0 and 958-1675 on segment1). Only one segment is ACTIVE.
+* #### Two segment settings: 1- log.segment.bytes: the max size of a single segment in bytes(default 1GB)  2- log.segment.ms: the time Kafka will wait before committing to the segment if not null(1 week)
+* #### Segments come with two indexes: 1- Ann offset to position index: helps Kafka find where to read from to find a message.  2- A timestamp to offset index: helps Kafka  find message with a specific timestamp.
+* #### Smaller log.segment.bytes means: 1- More segments per partition  2- Log compaction happens more often  3- Kafka must keep more files opened(Error: too many open files)
+* #### Smaller log.segment.ms means: 1- You set a max frequency for log compaction(more frequent triggers)  2- Maybe you want daily compaction instead of weekly.
+
+### Log Cleanup Policies
+* #### log.cleanup.policy=delete(default is a week). Delete base on max size of log is default infinite(-1)
+* #### log.cleanup.policy=compact, Kafka delete __consumer_offsets for all topic. It will delete old duplicate keys AFTER the active segment is committed.
+* #### Smaller/More segments means that log cleanup will happen more often!
+* #### Log cleanup shouldn't happen too often because it takes CPU and RAM resources.
+* #### The cleaner checks for work every 15 seconds(log.cleaner.backoff.ms)
+* #### log.retention.hours = default is 168(one week) number of hours to keep data(We also have log.retention.ms and log.retention.minutes)
+* #### log.retention.bytes = default is infinite, Max size in Bytes for each partition
+* #### Log Compaction: Ensures that your log contains at least the last known value for a specific key within a partition. Very useful if we just require a SNAPSHOT instead of full history.
+* #### segment.ms = default 7 days: Max amount of time to wait to close active segment 
+* #### segment.bytes = default 1GB: Max size of a segment
+* #### min.compaction.lag.ms = default 0: How long to wait before a message can be compacted 
+* #### delete.retention.ms = default 24 hours: Wait before deleting data marked for compaction
+* 
+### Unclean Leader Election
+* #### unclean.leader.election.enable = true, Non ISR start producing and make them leader, you may lose data, but you improve your availability.
+
+* #### Two approach to sending large message: 1) Using an external source and send a reference of that message to Kafka  2) modifying Kafka parameters.
