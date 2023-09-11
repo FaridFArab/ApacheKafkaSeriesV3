@@ -223,3 +223,10 @@ Zookeeper does NOT store consumer offsets with Kafka > v0.10.
 * ### Authentication: SSL: clients must use SSL certificates, SASL/PLAINTEXT: weak but easy setup and need username and password; SASL/SCRAM: username and password with a challenge and more secure; SASL/GSSAPI(Kerberos): such as Microsoft Active Directory, strong but hard to setup; SASL/OAUTHBEARER: leverage oauth token for authentication.
 * ### Authorisation: use ACL(Access Control List)
 * ### Encryption: ensures that the data exchanged between clients and brokers is sector to routers on the way.
+
+### Mirror Maker:
+* #### A replication is just a consumer and a producer. 
+* #### different tools: 1) Mirror Maker 2: open-source Kafka Connector connector that ships with Kafka.  2) Netflix Flink: they wrote their own application  3) User uReplicator: addresses performance and operations issue with Mirror Maker 1  4) Comcast has their own open-source Kafka Connect Source  5) Confluent Kafka Connect Source(paid) 
+* #### Replication doesn't preserve offsets, just data! Data an offset in one cluster is not the same as the data at same offset in another cluster.
+* ##### Active -> Active: 2 way replication to write on both clusters. To serv users from a nearby data center has performance benefits, Redundancy and resilience but architecture is challenging in avoiding conflicts.
+* ##### Active -> Passive: One way replication, simple to setup and no need to worry about access data and conflicts. Good for cloud migrations as well but Waste of good cluster and not possible to perform cluster fail over in Kafka without either losing data or having duplicates events.
